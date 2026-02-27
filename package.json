@@ -1,0 +1,102 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "raycast-denote",
+  "title": "Denote",
+  "description": "Create, search, and manage denote notes from Raycast with Emacs integration",
+  "icon": "extension-icon.png",
+  "author": "kayspark",
+  "categories": [
+    "Productivity",
+    "Applications"
+  ],
+  "license": "MIT",
+  "preferences": [
+    {
+      "name": "notesDir",
+      "title": "Notes Directory",
+      "description": "Path to denote notes directory",
+      "type": "textfield",
+      "default": "~/org/notes",
+      "required": true
+    },
+    {
+      "name": "papersDir",
+      "title": "Papers Directory",
+      "description": "Path to papers directory (contains notes/ and bibliography.bib)",
+      "type": "textfield",
+      "default": "~/org/papers",
+      "required": true
+    },
+    {
+      "name": "inboxDir",
+      "title": "Inbox Directory",
+      "description": "Path to inbox directory for quick captures",
+      "type": "textfield",
+      "default": "~/org/inbox",
+      "required": true
+    },
+    {
+      "name": "bibFile",
+      "title": "Bibliography File",
+      "description": "Path to BibTeX bibliography file",
+      "type": "textfield",
+      "default": "~/org/papers/bibliography.bib",
+      "required": true
+    },
+    {
+      "name": "editorCmd",
+      "title": "Editor Command",
+      "description": "Command to open notes (e.g., emacsclient -c -n)",
+      "type": "textfield",
+      "default": "emacsclient -c -n",
+      "required": true
+    }
+  ],
+  "commands": [
+    {
+      "name": "create-note",
+      "title": "Create Note",
+      "subtitle": "Denote",
+      "description": "Create a new denote note with title, tags, and content",
+      "mode": "view"
+    },
+    {
+      "name": "search-notes",
+      "title": "Search Notes",
+      "subtitle": "Denote",
+      "description": "Search denote notes by title, tags, or content",
+      "mode": "view"
+    },
+    {
+      "name": "search-papers",
+      "title": "Search Papers",
+      "subtitle": "Denote",
+      "description": "Search bibliography and paper notes, open PDFs",
+      "mode": "view"
+    },
+    {
+      "name": "quick-capture",
+      "title": "Quick Capture",
+      "subtitle": "Denote",
+      "description": "Quickly capture a thought to inbox",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.93.0",
+    "@raycast/utils": "^1.19.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "22.13.10",
+    "@types/react": "^18.3.18",
+    "eslint": "^9.22.0",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint"
+  }
+}
