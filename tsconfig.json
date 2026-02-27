@@ -2,6 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "compilerOptions": {
     "strict": true,
+    "skipLibCheck": true,
     "jsx": "react-jsx",
     "lib": ["ES2023"],
     "module": "Node16",
