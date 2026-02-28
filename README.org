@@ -8,7 +8,10 @@ Create, search, and manage [[https://protesilaos.com/emacs/denote][denote]] note
 
 Bridges Raycast's quick launcher with Emacs [[https://protesilaos.com/emacs/denote][denote]] — the simple, predictable note-naming system. Open notes in Emacs GUI via =emacsclient=, search your BibTeX library, and capture thoughts instantly.
 
-** Screenshot
+** Screenshots
+
+#+caption: Create Note — title, tags (autocomplete from existing), content
+[[file:screenshots/create-note.png]]
 
 #+caption: Search Papers — search bibliography, open PDFs, create paper notes
 [[file:screenshots/search-paper-note.png]]
@@ -38,6 +41,26 @@ Bridges Raycast's quick launcher with Emacs [[https://protesilaos.com/emacs/deno
 ** Emacs Integration
 
 This extension is designed to work with Emacs in daemon mode. Notes open in a new Emacs GUI frame via =emacsclient -c -n=.
+
+*** Automatic =emacsclient= Discovery
+
+Raycast runs with a minimal PATH, so the extension auto-resolves =emacsclient= at runtime. You can just set =emacsclient -c -n= in preferences — no full path needed.
+
+Searched locations (first match wins):
+
+| Install method   | Path                                                     |
+|------------------+----------------------------------------------------------|
+| MacPorts app     | =/Applications/MacPorts/Emacs.app/.../bin/emacsclient=   |
+| Emacs.app        | =/Applications/Emacs.app/.../bin/emacsclient=            |
+| Homebrew (ARM)   | =/opt/homebrew/bin/emacsclient=                          |
+| Homebrew (Intel) | =/usr/local/bin/emacsclient=                             |
+| MacPorts CLI     | =/opt/local/bin/emacsclient=                             |
+| Linux system     | =/usr/bin/emacsclient=                                   |
+| Snap             | =/snap/bin/emacsclient=                                  |
+
+The server socket is also auto-detected: =~/.config/emacs/server/= → =~/.emacs.d/server/= → =/tmp/emacs{uid}/=.
+
+*** My Emacs Config
 
 My Emacs configuration: [[https://github.com/kayspark/emacs.d][kayspark/emacs.d]] — a minimal-emacs.d setup with:
 - *Evil mode* + general.el (=SPC= leader) + which-key

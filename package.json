@@ -48,7 +48,7 @@
       "title": "Editor Command",
       "description": "Command to open notes (e.g., emacsclient -c -n)",
       "type": "textfield",
-      "default": "emacsclient -c -n",
+      "default": "/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient -c -n --socket-name=$HOME/.config/emacs/server/server",
       "required": true
     }
   ],

@@ -168,7 +168,56 @@ export function readTitle(filepath: string): string {
   return parsed ? parsed.title : basename(filepath, ".org");
 }
 
+/** Search common emacsclient locations (MacPorts, Homebrew, Emacs.app, Linux) */
+function findEmacsclient(): string | null {
+  const candidates = [
+    "/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient",  // MacPorts
+    "/Applications/Emacs.app/Contents/MacOS/bin/emacsclient",           // Emacs for Mac OS X
+    "/opt/homebrew/bin/emacsclient",                                     // Homebrew ARM
+    "/usr/local/bin/emacsclient",                                        // Homebrew Intel / Linux
+    "/opt/local/bin/emacsclient",                                        // MacPorts CLI
+    "/usr/bin/emacsclient",                                              // Linux system
+    "/snap/bin/emacsclient",                                             // Snap
+  ];
+  return candidates.find((p) => existsSync(p)) || null;
+}
+
+/** Find Emacs server socket in common locations */
+function findSocket(): string | null {
+  const candidates = [
+    join(homedir(), ".config", "emacs", "server", "server"),             // XDG custom
+    join(homedir(), ".emacs.d", "server", "server"),                     // Traditional
+    `/tmp/emacs${process.getuid?.() ?? 501}/server`,                     // Default (macOS/Linux)
+  ];
+  return candidates.find((p) => existsSync(p)) || null;
+}
+
+/** Resolve emacsclient: find full path + add socket-name if needed */
+function resolveEditorCmd(editorCmd: string): string {
+  let cmd = editorCmd;
+  // If bare "emacsclient", resolve to full path
+  if (cmd.startsWith("emacsclient ") || cmd === "emacsclient") {
+    const fullPath = findEmacsclient();
+    if (fullPath) cmd = cmd.replace(/^emacsclient/, fullPath);
+  }
+  // Add --socket-name if emacsclient is used but socket isn't specified
+  if (cmd.includes("emacsclient") && !cmd.includes("--socket-name")) {
+    const socketPath = findSocket();
+    if (socketPath) cmd += ` --socket-name=${socketPath}`;
+  }
+  return cmd;
+}
+
 /** Open a file in the configured editor */
 export function openInEditor(editorCmd: string, filepath: string): void {
-  execSync(`${editorCmd} "${filepath}"`, { timeout: 5000 });
+  const PATH = [
+    "/Applications/MacPorts/Emacs.app/Contents/MacOS/bin",
+    "/Applications/Emacs.app/Contents/MacOS/bin",
+    "/opt/homebrew/bin",
+    "/opt/local/bin",
+    "/usr/local/bin",
+    process.env.PATH || "",
+  ].join(":");
+  const resolved = resolveEditorCmd(editorCmd);
+  execSync(`${resolved} "${filepath}"`, { timeout: 5000, env: { ...process.env, PATH } });
 }
