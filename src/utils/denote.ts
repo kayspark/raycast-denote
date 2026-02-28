@@ -118,14 +118,19 @@ export function scanTags(dirs: string[]): string[] {
     const expanded = expandPath(dir);
     if (!existsSync(expanded)) continue;
     try {
-      const output = execSync(`rg --no-filename -oP '(?<=:)[^:]+(?=:)' -g '*.org' --no-line-number "${expanded}"`, {
-        encoding: "utf-8",
-        timeout: 5000,
-      });
-      output
-        .split("\n")
-        .filter(Boolean)
-        .forEach((t) => tags.add(t.trim()));
+      const output = execSync(
+        `rg --no-filename --no-line-number -oP '^#\\+filetags:\\s*\\K.+' -g '*.org' "${expanded}"`,
+        { encoding: "utf-8", timeout: 5000 },
+      );
+      for (const line of output.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        // filetags format: :tag1:tag2:tag3:
+        for (const t of trimmed.split(":")) {
+          const tag = t.trim();
+          if (tag) tags.add(tag);
+        }
+      }
     } catch {
       // rg returns exit 1 if no matches
     }
