@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
 import { parseBibFile, extractPdfPath, formatAuthors, getVenue, BibEntry } from "./utils/bibtex";
-import { createNote, expandPath, scanNotes, openInEditor, DenoteFile } from "./utils/denote";
+import { createNote, scanNotes, openInEditor, DenoteFile } from "./utils/denote";
 
 interface Preferences {
   papersDir: string;
@@ -31,8 +31,9 @@ export default function SearchPapers() {
     setIsLoading(false);
   }, []);
 
+  const sorted = [...entries].sort((a, b) => b.year.localeCompare(a.year) || b.key.localeCompare(a.key));
   const filtered = query.trim()
-    ? entries.filter((e) => {
+    ? sorted.filter((e) => {
         const q = query.toLowerCase();
         return (
           e.title.toLowerCase().includes(q) ||
@@ -41,7 +42,7 @@ export default function SearchPapers() {
           e.key.toLowerCase().includes(q)
         );
       })
-    : entries.slice(0, 50);
+    : sorted.slice(0, 50);
 
   const openPdf = useCallback((entry: BibEntry) => {
     const pdfPath = extractPdfPath(entry.file);
@@ -107,7 +108,7 @@ export default function SearchPapers() {
             accessories={[
               { text: getVenue(entry) },
               ...(hasPdf ? [{ icon: Icon.Document, tooltip: "PDF available" }] : []),
-              ...(matchedNote ? [{ icon: Icon.TextDocument, tooltip: "Has note" }] : []),
+              ...(matchedNote ? [{ icon: Icon.Text, tooltip: "Has note" }] : []),
             ]}
             actions={
               <ActionPanel>
@@ -115,7 +116,7 @@ export default function SearchPapers() {
                 {matchedNote && (
                   <Action
                     title="Open Note in Emacs"
-                    icon={Icon.TextDocument}
+                    icon={Icon.Text}
                     onAction={() => openNote(matchedNote)}
                     shortcut={{ modifiers: ["cmd"], key: "return" }}
                   />
