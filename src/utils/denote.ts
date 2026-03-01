@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, basename } from "path";
 import { homedir } from "os";
@@ -208,7 +208,7 @@ function resolveEditorCmd(editorCmd: string): string {
   return cmd;
 }
 
-/** Open a file in the configured editor */
+/** Open a file in the configured editor (fire-and-forget, never blocks) */
 export function openInEditor(editorCmd: string, filepath: string): void {
   const PATH = [
     "/Applications/MacPorts/Emacs.app/Contents/MacOS/bin",
@@ -219,5 +219,10 @@ export function openInEditor(editorCmd: string, filepath: string): void {
     process.env.PATH || "",
   ].join(":");
   const resolved = resolveEditorCmd(editorCmd);
-  execSync(`${resolved} "${filepath}"`, { timeout: 5000, env: { ...process.env, PATH } });
+  const child = spawn("/bin/sh", ["-c", `${resolved} "${filepath}"`], {
+    detached: true,
+    stdio: "ignore",
+    env: { ...process.env, PATH },
+  });
+  child.unref();
 }
