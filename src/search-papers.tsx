@@ -1,9 +1,28 @@
-import { Action, ActionPanel, List, getPreferenceValues, showToast, Toast, Icon } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  List,
+  getPreferenceValues,
+  showToast,
+  Toast,
+  Icon,
+} from "@raycast/api";
 import { useState, useEffect, useCallback } from "react";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
-import { parseBibFile, extractPdfPath, formatAuthors, getVenue, BibEntry } from "./utils/bibtex";
-import { createNote, scanNotes, openInEditor, DenoteFile } from "./utils/denote";
+import {
+  parseBibFile,
+  extractPdfPath,
+  formatAuthors,
+  getVenue,
+  BibEntry,
+} from "./utils/bibtex";
+import {
+  createNote,
+  scanNotes,
+  openInEditor,
+  DenoteFile,
+} from "./utils/denote";
 
 interface Preferences {
   papersDir: string;
@@ -15,7 +34,9 @@ export default function SearchPapers() {
   const prefs = getPreferenceValues<Preferences>();
   const [query, setQuery] = useState("");
   const [entries, setEntries] = useState<BibEntry[]>([]);
-  const [paperNotes, setPaperNotes] = useState<Map<string, DenoteFile>>(new Map());
+  const [paperNotes, setPaperNotes] = useState<Map<string, DenoteFile>>(
+    new Map(),
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +52,9 @@ export default function SearchPapers() {
     setIsLoading(false);
   }, []);
 
-  const sorted = [...entries].sort((a, b) => b.year.localeCompare(a.year) || b.key.localeCompare(a.key));
+  const sorted = [...entries].sort(
+    (a, b) => b.year.localeCompare(a.year) || b.key.localeCompare(a.key),
+  );
   const filtered = query.trim()
     ? sorted.filter((e) => {
         const q = query.toLowerCase();
@@ -49,7 +72,11 @@ export default function SearchPapers() {
     if (pdfPath && existsSync(pdfPath)) {
       execSync(`open "${pdfPath}"`, { timeout: 5000 });
     } else {
-      showToast({ style: Toast.Style.Failure, title: "PDF not found", message: entry.file || "No file field" });
+      showToast({
+        style: Toast.Style.Failure,
+        title: "PDF not found",
+        message: entry.file || "No file field",
+      });
     }
   }, []);
 
@@ -58,7 +85,11 @@ export default function SearchPapers() {
       try {
         openInEditor(prefs.editorCmd, note.path);
       } catch (error) {
-        showToast({ style: Toast.Style.Failure, title: "Failed to open", message: String(error) });
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Failed to open",
+          message: String(error),
+        });
       }
     },
     [prefs.editorCmd],
@@ -68,12 +99,20 @@ export default function SearchPapers() {
     (entry: BibEntry) => {
       const tags = ["paper"];
       const content = `* ${entry.title}\n\n- Author :: ${entry.author}\n- Year :: ${entry.year}\n- Key :: ${entry.key}\n`;
-      const filepath = createNote(`${prefs.papersDir}/notes`, entry.title, tags, content);
+      const filepath = createNote(
+        `${prefs.papersDir}/notes`,
+        entry.title,
+        tags,
+        content,
+      );
       try {
         openInEditor(prefs.editorCmd, filepath);
         showToast({ style: Toast.Style.Success, title: "Paper note created" });
       } catch {
-        showToast({ style: Toast.Style.Failure, title: "Note created but failed to open" });
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Note created but failed to open",
+        });
       }
     },
     [prefs.editorCmd, prefs.papersDir],
@@ -94,7 +133,12 @@ export default function SearchPapers() {
   };
 
   return (
-    <List isLoading={isLoading} searchBarPlaceholder="Search papers..." onSearchTextChange={setQuery} throttle>
+    <List
+      isLoading={isLoading}
+      searchBarPlaceholder="Search papers..."
+      onSearchTextChange={setQuery}
+      throttle
+    >
       {filtered.map((entry) => {
         const pdfPath = extractPdfPath(entry.file);
         const hasPdf = pdfPath ? existsSync(pdfPath) : false;
@@ -107,12 +151,22 @@ export default function SearchPapers() {
             subtitle={`${formatAuthors(entry.author)} (${entry.year})`}
             accessories={[
               { text: getVenue(entry) },
-              ...(hasPdf ? [{ icon: Icon.Document, tooltip: "PDF available" }] : []),
-              ...(matchedNote ? [{ icon: Icon.Text, tooltip: "Has note" }] : []),
+              ...(hasPdf
+                ? [{ icon: Icon.Document, tooltip: "PDF available" }]
+                : []),
+              ...(matchedNote
+                ? [{ icon: Icon.Text, tooltip: "Has note" }]
+                : []),
             ]}
             actions={
               <ActionPanel>
-                {hasPdf && <Action title="Open PDF" icon={Icon.Document} onAction={() => openPdf(entry)} />}
+                {hasPdf && (
+                  <Action
+                    title="Open Pdf"
+                    icon={Icon.Document}
+                    onAction={() => openPdf(entry)}
+                  />
+                )}
                 {matchedNote && (
                   <Action
                     title="Open Note in Emacs"
@@ -129,7 +183,7 @@ export default function SearchPapers() {
                 />
                 {entry.doi && (
                   <Action.OpenInBrowser
-                    title="Open DOI"
+                    title="Open Doi"
                     url={`https://doi.org/${entry.doi}`}
                     shortcut={{ modifiers: ["cmd"], key: "d" }}
                   />

@@ -1,4 +1,11 @@
-import { Action, ActionPanel, Form, getPreferenceValues, showToast, Toast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Form,
+  getPreferenceValues,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { useState, useEffect } from "react";
 import { createNote, scanTags, expandPath, openInEditor } from "./utils/denote";
 
@@ -17,21 +24,42 @@ export default function CreateNote() {
     setTags(scanTags(dirs));
   }, []);
 
-  async function handleSubmit(values: { title: string; tags: string[]; content: string; directory: string }) {
+  async function handleSubmit(values: {
+    title: string;
+    tags: string[];
+    content: string;
+    directory: string;
+  }) {
     if (!values.title.trim()) {
-      await showToast({ style: Toast.Style.Failure, title: "Title is required" });
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Title is required",
+      });
       return;
     }
     try {
-      const filepath = createNote(values.directory, values.title, values.tags, values.content);
+      const filepath = createNote(
+        values.directory,
+        values.title,
+        values.tags,
+        values.content,
+      );
       try {
         openInEditor(prefs.editorCmd, filepath);
       } catch {
         // Editor open failed — note still created
       }
-      await showToast({ style: Toast.Style.Success, title: "Note created", message: values.title });
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Note created",
+        message: values.title,
+      });
     } catch (error) {
-      await showToast({ style: Toast.Style.Failure, title: "Failed to create note", message: String(error) });
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Failed to create note",
+        message: String(error),
+      });
     }
   }
 
@@ -49,11 +77,25 @@ export default function CreateNote() {
           <Form.TagPicker.Item key={tag} value={tag} title={tag} />
         ))}
       </Form.TagPicker>
-      <Form.TextArea id="content" title="Content" placeholder="Note content (optional)..." />
-      <Form.Dropdown id="directory" title="Directory" defaultValue={prefs.notesDir}>
+      <Form.TextArea
+        id="content"
+        title="Content"
+        placeholder="Note content (optional)..."
+      />
+      <Form.Dropdown
+        id="directory"
+        title="Directory"
+        defaultValue={prefs.notesDir}
+      >
         <Form.Dropdown.Item value={prefs.notesDir} title="Notes" />
-        <Form.Dropdown.Item value={`${prefs.papersDir}/notes`} title="Paper Notes" />
-        <Form.Dropdown.Item value={expandPath("~/org/meeting")} title="Meeting" />
+        <Form.Dropdown.Item
+          value={`${prefs.papersDir}/notes`}
+          title="Paper Notes"
+        />
+        <Form.Dropdown.Item
+          value={expandPath("~/org/meeting")}
+          title="Meeting"
+        />
       </Form.Dropdown>
     </Form>
   );

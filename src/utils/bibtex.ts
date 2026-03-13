@@ -28,7 +28,8 @@ export function parseBibFile(bibPath: string): BibEntry[] {
 
   while ((match = entryRegex.exec(content)) !== null) {
     const [, type, key, body] = match;
-    if (type.toLowerCase() === "comment" || type.toLowerCase() === "preamble") continue;
+    if (type.toLowerCase() === "comment" || type.toLowerCase() === "preamble")
+      continue;
 
     const getField = (name: string): string => {
       const fieldRegex = new RegExp(`${name}\\s*=\\s*[{"](.+?)[}"]`, "si");
@@ -60,7 +61,9 @@ export function extractPdfPath(fileField: string | undefined): string | null {
   const parts = fileField.split(":");
   if (parts.length >= 2) {
     // Handle absolute paths with colons (e.g., /Users/kaypark/...)
-    const fullPath = fileField.replace(/^[^:]*:/, "").replace(/:application\/pdf$/, "");
+    const fullPath = fileField
+      .replace(/^[^:]*:/, "")
+      .replace(/:application\/pdf$/, "");
     if (fullPath.endsWith(".pdf")) return expandPath(fullPath);
   }
   // Plain path

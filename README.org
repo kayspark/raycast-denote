@@ -13,6 +13,12 @@ Bridges Raycast's quick launcher with Emacs [[https://protesilaos.com/emacs/deno
 #+caption: Create Note — title, tags (autocomplete from existing), content
 [[file:screenshots/create-note.png]]
 
+#+caption: Search Notes — latest notes with tags and dates
+[[file:src/__tests__/screenshots/baseline/search-notes-latest.png]]
+
+#+caption: Open Note in Emacs — frame reuse for instant open
+[[file:src/__tests__/screenshots/baseline/emacs-open-note.png]]
+
 #+caption: Search Papers — search bibliography, open PDFs, create paper notes
 [[file:screenshots/search-paper-note.png]]
 
@@ -99,6 +105,34 @@ Configure paths in Raycast extension preferences (=Cmd+,= on any Denote command)
 | Inbox Directory    | =~/org/inbox=                   | Quick capture destination        |
 | Bibliography File  | =~/org/papers/bibliography.bib= | BibTeX file for paper search     |
 | Editor Command     | =emacsclient -c -n=            | Command to open notes            |
+
+** Testing
+
+*** Unit Tests (40 tests)
+
+#+begin_src sh
+npm run test:unit
+#+end_src
+
+#+caption: Unit test run (vitest)
+[[file:src/__tests__/screenshots/test-run.gif]]
+
+*** Visual E2E Tests
+
+Automated screenshot capture of Raycast + Emacs interaction with baseline comparison via =pixelmatch=:
+
+#+begin_src sh
+npm run test:visual
+#+end_src
+
+Requires =ray develop= running, Emacs daemon, and Screen Recording permission for the terminal.
+
+*** Full Suite
+
+#+begin_src sh
+npm test          # all tests
+npm run test:record  # record unit test GIF via VHS
+#+end_src
 
 ** Denote File Format
 

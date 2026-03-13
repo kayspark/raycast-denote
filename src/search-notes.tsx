@@ -1,6 +1,19 @@
-import { Action, ActionPanel, List, getPreferenceValues, showToast, Toast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  List,
+  getPreferenceValues,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { useState, useEffect, useCallback } from "react";
-import { scanNotes, searchNotes, readTitle, expandPath, openInEditor, DenoteFile } from "./utils/denote";
+import {
+  scanNotes,
+  searchNotes,
+  readTitle,
+  openInEditor,
+  DenoteFile,
+} from "./utils/denote";
 
 interface Preferences {
   notesDir: string;
@@ -58,14 +71,23 @@ export default function SearchNotes() {
       try {
         openInEditor(prefs.editorCmd, filepath);
       } catch (error) {
-        showToast({ style: Toast.Style.Failure, title: "Failed to open", message: String(error) });
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Failed to open",
+          message: String(error),
+        });
       }
     },
     [prefs.editorCmd],
   );
 
   return (
-    <List isLoading={isLoading} searchBarPlaceholder="Search notes..." onSearchTextChange={setQuery} throttle>
+    <List
+      isLoading={isLoading}
+      searchBarPlaceholder="Search notes..."
+      onSearchTextChange={setQuery}
+      throttle
+    >
       {notes.map((note) => (
         <List.Item
           key={note.path}
@@ -74,7 +96,10 @@ export default function SearchNotes() {
           accessories={note.tags.map((t) => ({ tag: t }))}
           actions={
             <ActionPanel>
-              <Action title="Open in Emacs" onAction={() => handleOpen(note.path)} />
+              <Action
+                title="Open in Emacs"
+                onAction={() => handleOpen(note.path)}
+              />
               <Action.CopyToClipboard
                 title="Copy Path"
                 content={note.path}

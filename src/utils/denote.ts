@@ -1,5 +1,11 @@
 import { execSync, spawn } from "child_process";
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  existsSync,
+} from "fs";
 import { join, basename } from "path";
 import { homedir } from "os";
 
@@ -35,7 +41,11 @@ export function formatOrgDate(date: Date = new Date()): string {
 }
 
 /** Build denote filename */
-export function buildFilename(title: string, tags: string[], date: Date = new Date()): string {
+export function buildFilename(
+  title: string,
+  tags: string[],
+  date: Date = new Date(),
+): string {
   const id = generateIdentifier(date);
   const slug = slugify(title);
   const tagSuffix = tags.length > 0 ? `__${tags.join("_")}` : "";
@@ -43,7 +53,11 @@ export function buildFilename(title: string, tags: string[], date: Date = new Da
 }
 
 /** Build org front matter */
-export function buildFrontMatter(title: string, tags: string[], content: string = ""): string {
+export function buildFrontMatter(
+  title: string,
+  tags: string[],
+  content: string = "",
+): string {
   const now = new Date();
   const id = generateIdentifier(now);
   const tagLine = tags.length > 0 ? `:${tags.join(":")}:` : "";
@@ -57,7 +71,12 @@ export function buildFrontMatter(title: string, tags: string[], content: string 
 }
 
 /** Create a denote note file, return full path */
-export function createNote(dir: string, title: string, tags: string[], content: string = ""): string {
+export function createNote(
+  dir: string,
+  title: string,
+  tags: string[],
+  content: string = "",
+): string {
   const expanded = expandPath(dir);
   if (!existsSync(expanded)) mkdirSync(expanded, { recursive: true });
   const now = new Date();
@@ -171,13 +190,13 @@ export function readTitle(filepath: string): string {
 /** Search common emacsclient locations (MacPorts, Homebrew, Emacs.app, Linux) */
 function findEmacsclient(): string | null {
   const candidates = [
-    "/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient",  // MacPorts
-    "/Applications/Emacs.app/Contents/MacOS/bin/emacsclient",           // Emacs for Mac OS X
-    "/opt/homebrew/bin/emacsclient",                                     // Homebrew ARM
-    "/usr/local/bin/emacsclient",                                        // Homebrew Intel / Linux
-    "/opt/local/bin/emacsclient",                                        // MacPorts CLI
-    "/usr/bin/emacsclient",                                              // Linux system
-    "/snap/bin/emacsclient",                                             // Snap
+    "/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient", // MacPorts
+    "/Applications/Emacs.app/Contents/MacOS/bin/emacsclient", // Emacs for Mac OS X
+    "/opt/homebrew/bin/emacsclient", // Homebrew ARM
+    "/usr/local/bin/emacsclient", // Homebrew Intel / Linux
+    "/opt/local/bin/emacsclient", // MacPorts CLI
+    "/usr/bin/emacsclient", // Linux system
+    "/snap/bin/emacsclient", // Snap
   ];
   return candidates.find((p) => existsSync(p)) || null;
 }
@@ -185,9 +204,9 @@ function findEmacsclient(): string | null {
 /** Find Emacs server socket in common locations */
 function findSocket(): string | null {
   const candidates = [
-    join(homedir(), ".config", "emacs", "server", "server"),             // XDG custom
-    join(homedir(), ".emacs.d", "server", "server"),                     // Traditional
-    `/tmp/emacs${process.getuid?.() ?? 501}/server`,                     // Default (macOS/Linux)
+    join(homedir(), ".config", "emacs", "server", "server"), // XDG custom
+    join(homedir(), ".emacs.d", "server", "server"), // Traditional
+    `/tmp/emacs${process.getuid?.() ?? 501}/server`, // Default (macOS/Linux)
   ];
   return candidates.find((p) => existsSync(p)) || null;
 }
@@ -219,6 +238,25 @@ export function openInEditor(editorCmd: string, filepath: string): void {
     process.env.PATH || "",
   ].join(":");
   const resolved = resolveEditorCmd(editorCmd);
+
+  // For emacsclient: reuse visible frame if available (much faster than -c)
+  if (resolved.includes("emacsclient")) {
+    const socketFlag = resolved.match(/(--socket-name=\S+)/)?.[1] || "";
+    const clientPath = resolved.split(/\s/)[0];
+    // Reuse visible GUI frame; create one only if none exists
+    const elisp = `(let ((f (car (visible-frame-list))))` +
+      ` (if (and f (not (eq (framep f) t)))` +
+      ` (progn (select-frame-set-input-focus f) (find-file "${filepath}"))` +
+      ` (find-file-other-frame "${filepath}")))`;
+    const child = spawn(clientPath, [socketFlag, "-n", "-e", elisp].filter(Boolean), {
+      detached: true,
+      stdio: "ignore",
+      env: { ...process.env, PATH },
+    });
+    child.unref();
+    return;
+  }
+
   const child = spawn("/bin/sh", ["-c", `${resolved} "${filepath}"`], {
     detached: true,
     stdio: "ignore",

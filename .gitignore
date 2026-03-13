@@ -1,2 +1,12 @@
 node_modules/
 .build/
+
+# Build artifacts at root (ray build output)
+create-note.js
+search-notes.js
+search-papers.js
+quick-capture.js
+
+# Test screenshots (only baseline is committed)
+src/__tests__/screenshots/current/
+src/__tests__/screenshots/diff/

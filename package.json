@@ -89,15 +89,23 @@
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.11",
     "@types/node": "^22.13.10",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "^18.3.3",
-    "eslint": "^9.22.0",
-    "typescript": "^5.8.2"
+    "eslint": "^8.57.1",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "typescript": "^5.8.2",
+    "vitest": "^4.1.0"
   },
   "scripts": {
     "build": "ray build",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
+    "test": "vitest run",
+    "test:unit": "vitest run src/__tests__/denote.test.ts src/__tests__/bibtex.test.ts",
+    "test:visual": "vitest run src/__tests__/visual",
+    "test:record": "vhs test.tape",
     "postinstall": "rm -rf node_modules/react node_modules/react-dom"
   }
 }
